@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\sheepdog\EventSubscriber;
+namespace Drupal\migrate_log\EventSubscriber;
 
 use Drupal\migrate\Event\MigrateEvents;
 use Drupal\migrate\Event\MigratePreRowSaveEvent;
@@ -14,12 +14,12 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 
 /**
- * Sheepdog migration event subscriber - keeping your migrations on track!
+ * Migrate Log migration event subscriber - keeping your migrations on track!
  *
- * Like a faithful sheepdog, this service watches over your migrations,
- * logging detailed changes and keeping everything in line.
+ * This service monitors your migrations, logging detailed changes
+ * and keeping everything organized.
  */
-class SheepdogEventSubscriber implements EventSubscriberInterface {
+class MigrateLogEventSubscriber implements EventSubscriberInterface {
 
   /**
    * The main logger channel.
@@ -57,7 +57,7 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
   protected $originalEntityValues = [];
 
   /**
-   * Constructs a new SheepdogEventSubscriber.
+   * Constructs a new MigrateLogEventSubscriber.
    *
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger channel factory.
@@ -70,9 +70,9 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
     $this->entityTypeManager = $entity_type_manager;
     $this->configFactory = $config_factory;
 
-    $config = $this->configFactory->get('sheepdog.settings');
-    $mainChannel = $config->get('logging.main_channel') ?: 'sheepdog';
-    $editsChannel = $config->get('logging.edits_channel') ?: 'sheepdog_edits';
+    $config = $this->configFactory->get('migrate_log.settings');
+    $mainChannel = $config->get('logging.main_channel') ?: 'migrate_log';
+    $editsChannel = $config->get('logging.edits_channel') ?: 'migrate_log_edits';
 
     $this->logger = $logger_factory->get($mainChannel);
     $this->editLogger = $logger_factory->get($editsChannel);
@@ -91,12 +91,12 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
   /**
    * Store original entity values before migration update.
    *
-   * Like a good dog, we fetch the current state before any changes.
+   * Capture the current state before any changes are made.
    */
   public function onPreSave(MigratePreRowSaveEvent $event): void {
     $migration = $event->getMigration();
     $row = $event->getRow();
-    $config = $this->configFactory->get('sheepdog.settings');
+    $config = $this->configFactory->get('migrate_log.settings');
 
     // Get configured ID fields or use defaults.
     $configuredIdFields = $config->get('tracking.id_fields') ?: ['id', 'source_id', 'ID10'];
@@ -144,7 +144,7 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
     if (!$has_any) {
       if ($config->get('logging.log_skipped_rows')) {
         $this->logger->debug(
-          '🐕 Sheepdog skipping row - no ID values found for migration: {migration} (configured fields: {fields}). Source: {source_display}',
+          'Migrate Log skipping row - no ID values found for migration: {migration} (configured fields: {fields}). Source: {source_display}',
           [
             'migration' => $migration->id(),
             'fields' => implode(', ', $id_fields),
@@ -169,7 +169,7 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
     }
 
     if (!$entityTypeId) {
-      $this->logger->warning('🐕 Sheepdog cannot determine entity type for migration: {migration}', [
+      $this->logger->warning('Migrate Log cannot determine entity type for migration: {migration}', [
         'migration' => $migration->id(),
       ]);
       return;
@@ -182,14 +182,14 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
 
     if ($original) {
       $this->originalEntityValues[$cacheKey] = $this->extractEntityValues($original);
-      $this->logger->info('🐕 Sheepdog tracking update for entity @id (primary_id: @primary_id)', [
+      $this->logger->info('Migrate Log tracking update for entity @id (primary_id: @primary_id)', [
         '@id' => $original->id(),
         '@primary_id' => $primaryId,
       ]);
     }
     else {
       if ($config->get('logging.log_new_entities')) {
-        $this->logger->info('🐕 Sheepdog tracking new entity creation (primary_id: @primary_id)', [
+        $this->logger->info('Migrate Log tracking new entity creation (primary_id: @primary_id)', [
           '@primary_id' => $primaryId,
         ]);
       }
@@ -200,12 +200,12 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
   /**
    * Log entity after saving with detailed diff.
    *
-   * Time to report back! Good dog.
+   * Compare and log changes after migration processing.
    */
   public function onPostSave(MigratePostRowSaveEvent $event): void {
     $migration = $event->getMigration();
     $row = $event->getRow();
-    $config = $this->configFactory->get('sheepdog.settings');
+    $config = $this->configFactory->get('migrate_log.settings');
 
     // Get the same ID information as in pre-save.
     $configuredIdFields = $config->get('tracking.id_fields') ?: ['id', 'source_id', 'ID10'];
@@ -256,7 +256,7 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
       if ($this->originalEntityValues[$cacheKey] === NULL) {
         // New entity.
         if ($config->get('logging.log_new_entities')) {
-          $this->logger->info('🐕 Sheepdog: Created new entity @entity_id for @migration. Source: @source_display', $logContext);
+          $this->logger->info('Migrate Log: Created new entity @entity_id for @migration. Source: @source_display', $logContext);
         }
       }
       else {
@@ -266,7 +266,7 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
 
         if (!empty($diff)) {
           if ($config->get('logging.log_updated_entities')) {
-            $diffMessage = "🐕 Sheepdog: Updated entity @entity_id for @migration. Source: @source_display\n@diff";
+            $diffMessage = "Migrate Log: Updated entity @entity_id for @migration. Source: @source_display\n@diff";
             $logContext['@diff'] = $diff;
 
             // Log to both channels for updates with changes.
@@ -277,7 +277,7 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
         else {
           // No changes detected.
           if ($config->get('logging.log_unchanged_entities')) {
-            $this->logger->info('🐕 Sheepdog: No changes detected for entity @entity_id. Source: @source_display', $logContext);
+            $this->logger->info('Migrate Log: No changes detected for entity @entity_id. Source: @source_display', $logContext);
           }
         }
       }
@@ -287,7 +287,7 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
     }
     else {
       // No pre-save data available.
-      $this->logger->info('🐕 Sheepdog: Processed entity @entity_id for @migration. Source: @source_display', $logContext);
+      $this->logger->info('Migrate Log: Processed entity @entity_id for @migration. Source: @source_display', $logContext);
     }
   }
 
@@ -363,7 +363,7 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
       $storage = $this->entityTypeManager->getStorage($entityTypeId);
     }
     catch (\Exception $e) {
-      $this->logger->error('🐕 Sheepdog cannot load storage for entity type: {type}. Error: {error}', [
+      $this->logger->error('Migrate Log cannot load storage for entity type: {type}. Error: {error}', [
         'type' => $entityTypeId,
         'error' => $e->getMessage(),
       ]);
@@ -449,7 +449,7 @@ class SheepdogEventSubscriber implements EventSubscriberInterface {
       }
     }
     catch (\Exception $e) {
-      $this->logger->error('🐕 Sheepdog cannot load saved entity. Error: {error}', [
+      $this->logger->error('Migrate Log cannot load saved entity. Error: {error}', [
         'error' => $e->getMessage(),
       ]);
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\sheepdog\Drush\Commands;
+namespace Drupal\migrate_log\Drush\Commands;
 
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -10,17 +10,17 @@ use Drush\Commands\DrushCommands;
 use Drush\Commands\AutowireTrait;
 
 /**
- * Sheepdog Drush commands for migration log analysis and monitoring.
+ * Migrate Log Drush commands for migration log analysis and monitoring.
  *
- * Like a faithful sheepdog, these commands help you keep track of your
- * migration data and ensure nothing goes astray.
+ * These commands help you keep track of your migration data and ensure
+ * nothing goes astray during the migration process.
  */
-final class SheepdogCommands extends DrushCommands {
+final class MigrateLogCommands extends DrushCommands {
 
   use AutowireTrait;
 
   /**
-   * Constructs a SheepdogCommands object.
+   * Constructs a MigrateLogCommands object.
    */
   public function __construct(
     private readonly Connection $database,
@@ -31,20 +31,20 @@ final class SheepdogCommands extends DrushCommands {
   }
 
   /**
-   * Display help for Sheepdog commands - your migration monitoring companion.
+   * Display help for Migrate Log commands - your migration monitoring tool.
    *
-   * Usage: drush sheepdog --help.
+   * Usage: drush migrate-log --help.
    */
-  #[CLI\Command(name: 'sheepdog')]
-  #[CLI\Usage(name: 'sheepdog --help', description: 'Show Sheepdog commands help and shortcuts')]
+  #[CLI\Command(name: 'migrate-log')]
+  #[CLI\Usage(name: 'migrate-log --help', description: 'Show Migrate Log commands help and shortcuts')]
   public function helpRoot(array $options = []): void {
     $commands = [
-      ['name' => 'sheepdog logs:export (sle)', 'desc' => 'Export migration logs to JSON/NDJSON/CSV'],
-      ['name' => 'sheepdog logs:analyze (sla)', 'desc' => 'Show statistical analysis of migration logs'],
-      ['name' => 'sheepdog logs:tail (slt)', 'desc' => 'Tail migration logs in real time'],
+      ['name' => 'migrate-log logs:export (mle)', 'desc' => 'Export migration logs to JSON/NDJSON/CSV'],
+      ['name' => 'migrate-log logs:analyze (mla)', 'desc' => 'Show statistical analysis of migration logs'],
+      ['name' => 'migrate-log logs:tail (mlt)', 'desc' => 'Tail migration logs in real time'],
     ];
 
-    $this->output()->writeln('🐕 Sheepdog Migration Monitor — commands and options:');
+    $this->output()->writeln('Migrate Log Migration Monitor — commands and options:');
     $this->output()->writeln('');
 
     foreach ($commands as $cmd) {
@@ -52,16 +52,16 @@ final class SheepdogCommands extends DrushCommands {
     }
 
     $this->output()->writeln('');
-    $this->output()->writeln('Sheepdog keeps your migrations on track with detailed logging and monitoring.');
+    $this->output()->writeln('Migrate Log keeps your migrations on track with detailed logging and monitoring.');
     $this->output()->writeln('For detailed options for a subcommand run: drush <subcommand> --help');
   }
 
   /**
-   * Display help for Sheepdog logs commands and flags.
+   * Display help for Migrate Log logs commands and flags.
    *
-   * Usage: drush sheepdog logs --help.
+   * Usage: drush migrate-log logs --help.
    */
-  #[CLI\Command(name: 'sheepdog logs')]
+  #[CLI\Command(name: 'migrate-log logs')]
   #[CLI\Option(name: 'output', description: 'Output file path. When omitted a filename migration-logs-TIMESTAMP.json is generated')]
   #[CLI\Option(name: 'hours', description: 'Include logs from the last N hours (integer). Default: 24')]
   #[CLI\Option(name: 'migration', description: 'Filter logs by migration id or pattern')]
@@ -75,13 +75,13 @@ final class SheepdogCommands extends DrushCommands {
   #[CLI\Option(name: 'ndjson', description: 'Output in NDJSON format (one JSON object per line)')]
   #[CLI\Option(name: 'csv', description: 'Output in CSV format')]
   #[CLI\Option(name: 'pretty', description: 'Pretty print JSON output')]
-  #[CLI\Usage(name: 'sheepdog logs --help', description: 'Show Sheepdog logs commands and options')]
+  #[CLI\Usage(name: 'migrate-log logs --help', description: 'Show Migrate Log logs commands and options')]
   public function helpLogs(array $options = []): void {
-    $this->output()->writeln('🐕 Sheepdog:logs - subcommands and options:');
+    $this->output()->writeln('Migrate Log:logs - subcommands and options:');
     $this->output()->writeln('');
 
     // Export.
-    $this->output()->writeln('sheepdog logs:export (sle)  Export migration logs to JSON/NDJSON/CSV');
+    $this->output()->writeln('migrate-log logs:export (mle)  Export migration logs to JSON/NDJSON/CSV');
     $this->output()->writeln('  --output[=OUTPUT]        Output file path. [default: migration-logs-TIMESTAMP.json]');
     $this->output()->writeln('  --hours[=HOURS]          Include logs from the last N hours. [default: 24]');
     $this->output()->writeln('  --migration[=MIGRATION]  Filter logs by migration id or pattern');
@@ -98,20 +98,20 @@ final class SheepdogCommands extends DrushCommands {
     $this->output()->writeln('');
 
     // Analyze.
-    $this->output()->writeln('sheepdog logs:analyze (sla)  Analyze migration logs and show summary stats');
+    $this->output()->writeln('migrate-log logs:analyze (mla)  Analyze migration logs and show summary stats');
     $this->output()->writeln('  --hours[=HOURS]           Analyze logs from the last N hours. [default: 24]');
     $this->output()->writeln('  --migration[=MIGRATION]   Filter by migration ID pattern');
     $this->output()->writeln('');
 
     // Tail.
-    $this->output()->writeln('sheepdog logs:tail (slt)  Tail migration logs in real time');
+    $this->output()->writeln('migrate-log logs:tail (mlt)  Tail migration logs in real time');
     $this->output()->writeln('  --json                    Output in JSON format');
     $this->output()->writeln('');
 
     $this->output()->writeln('Examples:');
-    $this->output()->writeln('  drush sheepdog logs:export --hours=2 --update --pretty');
-    $this->output()->writeln('  drush sheepdog logs:analyze --hours=1');
-    $this->output()->writeln('  drush sheepdog logs:tail --json');
+    $this->output()->writeln('  drush migrate-log logs:export --hours=2 --update --pretty');
+    $this->output()->writeln('  drush migrate-log logs:analyze --hours=1');
+    $this->output()->writeln('  drush migrate-log logs:tail --json');
     $this->output()->writeln('');
     $this->output()->writeln('<info>Global Options</info>');
     $this->output()->writeln('  -v|vv|vvv, --verbose     Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug');
@@ -120,9 +120,9 @@ final class SheepdogCommands extends DrushCommands {
     $this->output()->writeln('                           To see all global options, run `drush topic` and pick the first choice.');
     $this->output()->writeln('');
     $this->output()->writeln('<info>Aliases</info>');
-    $this->output()->writeln('  sle, sla, slt');
+    $this->output()->writeln('  mle, mla, mlt');
     $this->output()->writeln('');
-    $this->output()->writeln('🐕 <info>Good dog! To see this help from the top-level: drush sheepdog --help</info>');
+    $this->output()->writeln('<info>To see this help from the top-level: drush migrate-log --help</info>');
   }
 
   /**
@@ -130,12 +130,12 @@ final class SheepdogCommands extends DrushCommands {
    *
    * Creates comprehensive JSON output with searchable fields for migration debugging.
    * Each log entry includes timestamp, migration_id, entity_id, operation_type, and diff data.
-   * Like a good retriever, fetches exactly what you need!
+   * Fetches exactly what you need for analysis!
    *
    * @param array $options
    *   Command options.
    */
-  #[CLI\Command(name: 'sheepdog logs:export', aliases: ['sle'])]
+  #[CLI\Command(name: 'migrate-log logs:export', aliases: ['mle'])]
   #[CLI\Option(name: 'output', description: 'Output file path (default: migration-logs-TIMESTAMP.json)')]
   #[CLI\Option(name: 'hours', description: 'Include logs from last N hours (default: 24)')]
   #[CLI\Option(name: 'migration', description: 'Filter by migration ID pattern')]
@@ -149,9 +149,9 @@ final class SheepdogCommands extends DrushCommands {
   #[CLI\Option(name: 'ndjson', description: 'Output in NDJSON format (one JSON object per line)')]
   #[CLI\Option(name: 'csv', description: 'Output in CSV format')]
   #[CLI\Option(name: 'pretty', description: 'Pretty print JSON output')]
-  #[CLI\Usage(name: 'sheepdog logs:export', description: 'Export all migration logs from last 24 hours')]
-  #[CLI\Usage(name: 'sheepdog logs:export --hours=2 --update', description: 'Export only update operations from last 2 hours')]
-  #[CLI\Usage(name: 'sheepdog logs:export --output=/tmp/debug.json --pretty', description: 'Export to specific file with pretty formatting')]
+  #[CLI\Usage(name: 'migrate-log logs:export', description: 'Export all migration logs from last 24 hours')]
+  #[CLI\Usage(name: 'migrate-log logs:export --hours=2 --update', description: 'Export only update operations from last 2 hours')]
+  #[CLI\Usage(name: 'migrate-log logs:export --output=/tmp/debug.json --pretty', description: 'Export to specific file with pretty formatting')]
   public function exportLogs(
     array $options = [
       'output' => NULL,
@@ -175,7 +175,7 @@ final class SheepdogCommands extends DrushCommands {
     $conditions = $this->buildQueryConditions($options);
     $logs = $this->fetchLogs($conditions);
 
-    $this->output()->writeln(sprintf('🐕 Found %d log entries to fetch and export...', count($logs)));
+    $this->output()->writeln(sprintf('Found %d log entries to fetch and export...', count($logs)));
 
     // Process logs into structured format.
     $structuredLogs = $this->processLogsToStructured($logs);
@@ -191,7 +191,7 @@ final class SheepdogCommands extends DrushCommands {
 
     $duration = round(microtime(TRUE) - $startTime, 2);
     $this->logger()->success(sprintf(
-      '🐕 Good dog! Exported %d log entries to %s in %s seconds',
+      'Exported %d log entries to %s in %s seconds',
       count($structuredLogs),
       $outputFile,
       $duration
@@ -205,13 +205,13 @@ final class SheepdogCommands extends DrushCommands {
    * Analyze migration logs with statistical summaries.
    *
    * Provides insights into migration performance and issues.
-   * Like a border collie analyzing the flock!
+   * Analyzes the migration data to provide useful insights!
    */
-  #[CLI\Command(name: 'sheepdog logs:analyze', aliases: ['sla'])]
+  #[CLI\Command(name: 'migrate-log logs:analyze', aliases: ['mla'])]
   #[CLI\Option(name: 'hours', description: 'Analyze logs from last N hours (default: 24)')]
   #[CLI\Option(name: 'migration', description: 'Filter by migration ID pattern')]
-  #[CLI\Usage(name: 'sheepdog logs:analyze', description: 'Analyze all migration logs from last 24 hours')]
-  #[CLI\Usage(name: 'sheepdog logs:analyze --hours=1', description: 'Quick analysis of last hour')]
+  #[CLI\Usage(name: 'migrate-log logs:analyze', description: 'Analyze all migration logs from last 24 hours')]
+  #[CLI\Usage(name: 'migrate-log logs:analyze --hours=1', description: 'Quick analysis of last hour')]
   public function analyzeLogs(
     array $options = [
       'hours' => 24,
@@ -243,17 +243,17 @@ final class SheepdogCommands extends DrushCommands {
   /**
    * Tail migration logs in real-time with structured output.
    *
-   * Watch your migrations like a vigilant guard dog!
+   * Monitor your migrations in real-time!
    */
-  #[CLI\Command(name: 'sheepdog logs:tail', aliases: ['slt'])]
+  #[CLI\Command(name: 'migrate-log logs:tail', aliases: ['mlt'])]
   #[CLI\Option(name: 'json', description: 'Output in JSON format')]
-  #[CLI\Usage(name: 'sheepdog logs:tail', description: 'Tail migration logs in real-time')]
+  #[CLI\Usage(name: 'migrate-log logs:tail', description: 'Tail migration logs in real-time')]
   public function tailLogs(
     array $options = [
       'json' => FALSE,
     ],
   ): void {
-    $this->output()->writeln('🐕 Sheepdog on watch! Tailing migration logs (Ctrl+C to stop watching)...');
+    $this->output()->writeln('Migrate Log monitoring! Tailing migration logs (Ctrl+C to stop watching)...');
 
     $lastId = $this->getLatestLogId();
 
@@ -282,7 +282,7 @@ final class SheepdogCommands extends DrushCommands {
   private function buildQueryConditions(array $options): array {
     $conditions = [];
     $params = [];
-    $config = $this->configFactory->get('sheepdog.settings');
+    $config = $this->configFactory->get('migrate_log.settings');
 
     // Time filter.
     if (!empty($options['hours'])) {
@@ -291,8 +291,8 @@ final class SheepdogCommands extends DrushCommands {
     }
 
     // Channel filter - use configured channels.
-    $mainChannel = $config->get('logging.main_channel') ?: 'sheepdog';
-    $editsChannel = $config->get('logging.edits_channel') ?: 'sheepdog_edits';
+    $mainChannel = $config->get('logging.main_channel') ?: 'migrate_log';
+    $editsChannel = $config->get('logging.edits_channel') ?: 'migrate_log_edits';
 
     $conditions[] = "(type = :main_channel OR type = :edits_channel)";
     $params[':main_channel'] = $mainChannel;
@@ -386,11 +386,11 @@ final class SheepdogCommands extends DrushCommands {
       'level' => $this->mapSeverityToLevel($log->severity),
       'message' => $message,
       'log' => [
-        'logger' => 'sheepdog',
+        'logger' => 'migrate_log',
         'level' => $this->mapSeverityToLevel($log->severity),
       ],
       'event' => [
-        'dataset' => 'sheepdog_migration',
+        'dataset' => 'migrate_log_migration',
         'kind' => 'event',
       ],
       'migration' => $this->extractMigrationData($message, $variables),
@@ -595,7 +595,7 @@ final class SheepdogCommands extends DrushCommands {
       default => 'json',
     };
 
-    return "sheepdog-logs-{$timestamp}.{$extension}";
+    return "migrate-logs-{$timestamp}.{$extension}";
   }
 
   /**
@@ -603,7 +603,7 @@ final class SheepdogCommands extends DrushCommands {
    */
   private function displayUsageExamples(string $filename, string $format): void {
     $this->output()->writeln('');
-    $this->output()->writeln('<info>🐕 Usage examples (good dog!):</info>');
+    $this->output()->writeln('<info>Usage examples:</info>');
 
     switch ($format) {
       case 'ndjson':
@@ -695,7 +695,7 @@ final class SheepdogCommands extends DrushCommands {
    * Display analysis results.
    */
   private function displayAnalysis(array $analysis): void {
-    $this->output()->writeln('<info>🐕 === Sheepdog Migration Log Analysis === 🐕</info>');
+    $this->output()->writeln('<info>=== Migrate Log Migration Analysis ===</info>');
     $this->output()->writeln('');
 
     $this->output()->writeln(sprintf('<comment>Total Entries:</comment> %d', $analysis['total_entries']));
@@ -742,16 +742,16 @@ final class SheepdogCommands extends DrushCommands {
     }
 
     $this->output()->writeln('');
-    $this->output()->writeln('🐕 <info>Good dog! Analysis complete.</info>');
+    $this->output()->writeln('<info>Analysis complete.</info>');
   }
 
   /**
    * Get latest log ID for tailing.
    */
   private function getLatestLogId(): int {
-    $config = $this->configFactory->get('sheepdog.settings');
-    $mainChannel = $config->get('logging.main_channel') ?: 'sheepdog';
-    $editsChannel = $config->get('logging.edits_channel') ?: 'sheepdog_edits';
+    $config = $this->configFactory->get('migrate_log.settings');
+    $mainChannel = $config->get('logging.main_channel') ?: 'migrate_log';
+    $editsChannel = $config->get('logging.edits_channel') ?: 'migrate_log_edits';
 
     return (int) $this->database->select('watchdog', 'w')
       ->condition('type', [$mainChannel, $editsChannel], 'IN')
@@ -766,9 +766,9 @@ final class SheepdogCommands extends DrushCommands {
    * Fetch logs since a specific ID.
    */
   private function fetchLogsSince(int $lastId): array {
-    $config = $this->configFactory->get('sheepdog.settings');
-    $mainChannel = $config->get('logging.main_channel') ?: 'sheepdog';
-    $editsChannel = $config->get('logging.edits_channel') ?: 'sheepdog_edits';
+    $config = $this->configFactory->get('migrate_log.settings');
+    $mainChannel = $config->get('logging.main_channel') ?: 'migrate_log';
+    $editsChannel = $config->get('logging.edits_channel') ?: 'migrate_log_edits';
 
     return $this->database->select('watchdog', 'w')
       ->fields('w')

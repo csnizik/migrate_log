@@ -1,12 +1,12 @@
-# Sheepdog
+# Migrate Log
 
-**Migration logging and monitoring watchdog for Drupal**
+**Migration logging and monitoring tool for Drupal**
 
-Keep your data migrations on track with detailed logging, real-time monitoring, and comprehensive analysis tools. Like a faithful sheepdog, this module watches over your migrations and keeps everything in line.
+Keep your data migrations on track with detailed logging, real-time monitoring, and comprehensive analysis tools. This module monitors your migrations and keeps everything organized.
 
 ## Features
 
-🐕 **Smart Migration Tracking**
+📋 **Smart Migration Tracking**
 - Automatic detection of entity changes during migration
 - Detailed field-by-field diff logging
 - Configurable ID field mapping for flexible entity matching
@@ -41,24 +41,24 @@ Keep your data migrations on track with detailed logging, real-time monitoring, 
 ### Via Composer (Recommended for contrib use)
 
 ```bash
-composer require drupal/sheepdog
-drush en sheepdog
+composer require drupal/migrate_log
+drush en migrate_log
 ```
 
 ### Manual Installation
 
-1. Download and extract to `web/modules/contrib/sheepdog`
-2. Enable the module: `drush en sheepdog`
+1. Download and extract to `web/modules/contrib/migrate_log`
+2. Enable the module: `drush en migrate_log`
 
 ## Configuration
 
-After installation, configure Sheepdog at `admin/config/development/sheepdog` or by editing the configuration:
+After installation, configure Migrate Log at `admin/config/development/migrate_log` or by editing the configuration:
 
 ```yaml
-# config/sync/sheepdog.settings.yml
+# config/sync/migrate_log.settings.yml
 logging:
-  main_channel: 'sheepdog'
-  edits_channel: 'sheepdog_edits'
+  main_channel: 'migrate_log'
+  edits_channel: 'migrate_log_edits'
   log_new_entities: true
   log_updated_entities: true
   log_unchanged_entities: true
@@ -91,7 +91,7 @@ monitoring:
 
 ### Automatic Migration Logging
 
-Once enabled, Sheepdog automatically logs all migration activity. It will:
+Once enabled, Migrate Log automatically logs all migration activity. It will:
 
 1. **Pre-Migration**: Capture current entity state before changes
 2. **Post-Migration**: Compare and log detailed field changes
@@ -104,50 +104,50 @@ Once enabled, Sheepdog automatically logs all migration activity. It will:
 
 ```bash
 # Export all logs from last 24 hours
-drush sheepdog logs:export
+drush migrate-log logs:export
 
 # Export specific timeframe with pretty formatting
-drush sle --hours=2 --update --pretty
+drush mle --hours=2 --update --pretty
 
 # Export to CSV for spreadsheet analysis
-drush sle --csv --output=migration-analysis.csv
+drush mle --csv --output=migration-analysis.csv
 
 # Export for ELK stack ingestion
-drush sle --ndjson --output=logs-for-elk.ndjson
+drush mle --ndjson --output=logs-for-elk.ndjson
 ```
 
 #### Analyze Migration Performance
 
 ```bash
 # Quick analysis of recent migrations
-drush sheepdog logs:analyze
+drush migrate-log logs:analyze
 
 # Analyze specific timeframe
-drush sla --hours=1
+drush mla --hours=1
 
 # Focus on specific migration
-drush sla --migration=my_content_migration
+drush mla --migration=my_content_migration
 ```
 
 #### Real-Time Log Monitoring
 
 ```bash
 # Pretty formatted real-time logs
-drush sheepdog logs:tail
+drush migrate-log logs:tail
 
 # JSON output for processing
-drush slt --json
+drush mlt --json
 ```
 
 ### Log Structure
 
-Sheepdog creates structured log entries compatible with modern log analysis tools:
+Migrate Log creates structured log entries compatible with modern log analysis tools:
 
 ```json
 {
   "@timestamp": "2024-01-15T10:30:45+00:00",
   "level": "info",
-  "message": "🐕 Sheepdog: Updated entity 123 for my_migration. Source: id:456",
+  "message": "Migrate Log: Updated entity 123 for my_migration. Source: id:456",
   "migration": {
     "id": "my_migration",
     "primary_id": "456"
@@ -171,7 +171,7 @@ Sheepdog creates structured log entries compatible with modern log analysis tool
 
 ## Migration Integration
 
-Sheepdog works automatically with any Drupal migration. For optimal results:
+Migrate Log works automatically with any Drupal migration. For optimal results:
 
 ### Source Configuration
 
@@ -188,7 +188,7 @@ source:
 
 ### Entity Mapping
 
-For content entity migrations, Sheepdog will automatically detect:
+For content entity migrations, Migrate Log will automatically detect:
 - Entity type from destination plugin
 - ID fields from source configuration
 - Field changes through entity comparison
@@ -198,9 +198,9 @@ For content entity migrations, Sheepdog will automatically detect:
 ### Common Issues
 
 **No logs appearing:**
-- Verify the module is enabled: `drush pml | grep sheepdog`
-- Check log channels: `drush watchdog:show sheepdog`
-- Review configuration: `drush config:get sheepdog.settings`
+- Verify the module is enabled: `drush pml | grep migrate_log`
+- Check log channels: `drush watchdog:show migrate_log`
+- Review configuration: `drush config:get migrate_log.settings`
 
 **Entity matching issues:**
 - Configure `entity_label_field` to match your entity structure
@@ -217,15 +217,15 @@ For content entity migrations, Sheepdog will automatically detect:
 Enable verbose logging for troubleshooting:
 
 ```bash
-drush config:set sheepdog.settings monitoring.log_level debug
-drush config:set sheepdog.settings logging.log_skipped_rows true
+drush config:set migrate_log.settings monitoring.log_level debug
+drush config:set migrate_log.settings logging.log_skipped_rows true
 ```
 
 ## Development
 
 ### Contributing
 
-Sheepdog welcomes contributions! Please:
+Migrate Log welcomes contributions! Please:
 
 1. Fork the repository
 2. Create a feature branch
@@ -233,16 +233,16 @@ Sheepdog welcomes contributions! Please:
 4. Include tests for new functionality
 5. Submit a pull request
 
-### Extending Sheepdog
+### Extending Migrate Log
 
 #### Custom Event Subscribers
 
 Create custom migration logging by extending the event subscriber:
 
 ```php
-use Drupal\sheepdog\EventSubscriber\SheepdogEventSubscriber;
+use Drupal\migrate_log\EventSubscriber\MigrateLogEventSubscriber;
 
-class MyCustomSubscriber extends SheepdogEventSubscriber {
+class MyCustomSubscriber extends MigrateLogEventSubscriber {
 
   protected function extractEntityValues(ContentEntityInterface $entity): array {
     $values = parent::extractEntityValues($entity);
@@ -262,13 +262,13 @@ class MyCustomSubscriber extends SheepdogEventSubscriber {
 Extend the Drush commands for project-specific analysis:
 
 ```php
-use Drupal\sheepdog\Drush\Commands\SheepdogCommands;
+use Drupal\migrate_log\Drush\Commands\MigrateLogCommands;
 
-class MyProjectSheepdogCommands extends SheepdogCommands {
+class MyProjectMigrateLogCommands extends MigrateLogCommands {
 
   #[CLI\Command(name: 'myproject:migration:validate')]
   public function validateMigrationData(): void {
-    // Custom validation logic using Sheepdog's log analysis
+    // Custom validation logic using Migrate Log's log analysis
   }
 }
 ```
@@ -277,7 +277,7 @@ class MyProjectSheepdogCommands extends SheepdogCommands {
 
 ### Event-Driven Design
 
-Sheepdog uses Drupal's event system to hook into migration processes:
+Migrate Log uses Drupal's event system to hook into migration processes:
 
 - `MigrateEvents::PRE_ROW_SAVE`: Capture entity state before changes
 - `MigrateEvents::POST_ROW_SAVE`: Compare and log changes after processing
@@ -305,10 +305,10 @@ GPL-2.0-or-later
 
 ## Support
 
-- Issue Queue: https://www.drupal.org/project/sheepdog/issues
-- Documentation: https://www.drupal.org/docs/contributed-modules/sheepdog
+- Issue Queue: https://www.drupal.org/project/migrate_log/issues
+- Documentation: https://www.drupal.org/docs/contributed-modules/migrate_log
 - Community Support: #migrate channel in Drupal Slack
 
 ---
 
-*🐕 Good dog! Keep those migrations in line.*
+*Keep those migrations organized and on track!*
