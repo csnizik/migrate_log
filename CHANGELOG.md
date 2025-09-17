@@ -1,23 +1,38 @@
 # Changelog
 
-All notable changes to the Sheepdog module will be documented in this file.
+All notable changes to the Migrate Log module will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2024-12-17
+
+### Changed
+- **BREAKING**: Renamed module from "Sheepdog" to "Migrate Log" for more general-purpose use
+- Updated module machine name from `sheepdog` to `migrate_log`
+- Updated all namespaces from `Drupal\sheepdog` to `Drupal\migrate_log`
+- Updated class names: `SheepdogCommands` → `MigrateLogCommands`, `SheepdogEventSubscriber` → `MigrateLogEventSubscriber`
+- Updated Drush command names: `drush sheepdog` → `drush migrate-log`
+- Updated command aliases: `sle,sla,slt` → `mle,mla,mlt`
+- Updated default log channels: `sheepdog/sheepdog_edits` → `migrate_log/migrate_log_edits`
+- Updated configuration keys: `sheepdog.settings` → `migrate_log.settings`
+- Removed all dog emojis and dog-related language from code and documentation
+- Updated documentation URLs and references
+- Updated installation instructions and examples
+
 ## [1.0.0] - 2024-01-15
 
 ### Added
-- Initial release of Sheepdog migration monitoring module
-- 🐕 Event-driven migration logging with detailed change tracking
+- Initial release of Migrate Log migration monitoring module
+- Event-driven migration logging with detailed change tracking
 - Configurable ID field mapping for flexible entity matching
 - Support for any Drupal entity type and migration source
 - Separate log channels for general events and detailed edits
 - Real-time migration monitoring capabilities
 - Comprehensive Drush commands for log analysis:
-  - `sheepdog logs:export` - Export logs in JSON, NDJSON, or CSV formats
-  - `sheepdog logs:analyze` - Statistical analysis of migration performance
-  - `sheepdog logs:tail` - Real-time log monitoring
+  - `migrate-log logs:export` - Export logs in JSON, NDJSON, or CSV formats
+  - `migrate-log logs:analyze` - Statistical analysis of migration performance
+  - `migrate-log logs:tail` - Real-time log monitoring
 - ELK stack compatible structured logging output
 - Configurable logging levels and field tracking
 - Skip detection for empty/invalid source rows
