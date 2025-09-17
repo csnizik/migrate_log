@@ -1,0 +1,69 @@
+# Configuration schema for migrate_log.settings
+
+migrate_log.settings:
+  type: config_object
+  label: 'Migrate Log settings'
+  mapping:
+    logging:
+      type: mapping
+      label: 'Logging settings'
+      mapping:
+        main_channel:
+          type: string
+          label: 'Main log channel'
+          description: 'Primary log channel name for general migration events'
+        edits_channel:
+          type: string
+          label: 'Edits log channel'
+          description: 'Separate channel for detailed change logs and field edits'
+        log_new_entities:
+          type: boolean
+          label: 'Log new entities'
+          description: 'Whether to log when new entities are created during migration'
+        log_updated_entities:
+          type: boolean
+          label: 'Log updated entities'
+          description: 'Whether to log when existing entities are updated during migration'
+        log_unchanged_entities:
+          type: boolean
+          label: 'Log unchanged entities'
+          description: 'Whether to log when entities are processed but not changed'
+        log_skipped_rows:
+          type: boolean
+          label: 'Log skipped rows'
+          description: 'Whether to log when source rows are skipped due to missing IDs'
+    tracking:
+      type: mapping
+      label: 'Entity tracking settings'
+      mapping:
+        id_fields:
+          type: sequence
+          label: 'ID fields'
+          description: 'List of source fields to check for entity IDs (in priority order)'
+          sequence:
+            type: string
+            label: 'Field name'
+        primary_id_field:
+          type: string
+          label: 'Primary ID field'
+          description: 'Specific field to use as primary identifier (leave empty for auto-detection)'
+        entity_label_field:
+          type: string
+          label: 'Entity label field'
+          description: 'Field name in destination entities for ID lookups and entity matching'
+    monitoring:
+      type: mapping
+      label: 'Monitoring settings'
+      mapping:
+        enable_real_time:
+          type: boolean
+          label: 'Enable real-time monitoring'
+          description: 'Enable real-time migration monitoring capabilities'
+        log_level:
+          type: string
+          label: 'Log level'
+          description: 'Logging level for migration events'
+          constraints:
+            Choice:
+              choices: ['debug', 'info', 'notice', 'warning', 'error', 'critical', 'alert', 'emergency']
+              strict: false
