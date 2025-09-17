@@ -1,6 +1,6 @@
 services:
-  sheepdog.event_subscriber:
-    class: Drupal\sheepdog\EventSubscriber\SheepdogEventSubscriber
+  migrate_log.event_subscriber:
+    class: Drupal\migrate_log\EventSubscriber\MigrateLogEventSubscriber
     arguments: ['@logger.factory', '@entity_type.manager', '@config.factory']
     tags:
       - { name: event_subscriber }

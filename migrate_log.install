@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Migrate Log module.
+ */
+
+use Drupal\Core\Utility\UpdateException;
+
+/**
+ * Implements hook_install().
+ */
+function migrate_log_install($is_syncing) {
+  if (!$is_syncing) {
+    \Drupal::messenger()->addStatus(t('Migrate Log is now monitoring your migrations!'));
+    \Drupal::logger('migrate_log')->info('Migrate Log migration monitoring enabled.');
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function migrate_log_uninstall($is_syncing) {
+  if (!$is_syncing) {
+    \Drupal::messenger()->addStatus(t('Migrate Log has been disabled. Thanks for using migration monitoring!'));
+  }
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function migrate_log_requirements($phase) {
+  $requirements = [];
+
+  if ($phase == 'runtime') {
+    $config = \Drupal::config('migrate_log.settings');
+    $requirements['migrate_log'] = [
+      'title' => t('Migrate Log Monitor'),
+      'value' => t('Active and monitoring'),
+      'severity' => REQUIREMENT_OK,
+    ];
+
+    // Check if main migration module is available
+    if (!\Drupal::moduleHandler()->moduleExists('migrate')) {
+      $requirements['migrate_log']['value'] = t('Migrate module required');
+      $requirements['migrate_log']['description'] = t('Migrate Log requires the Migrate module to function properly.');
+      $requirements['migrate_log']['severity'] = REQUIREMENT_ERROR;
+    }
+
+    // Warn if no ID fields are configured
+    $idFields = $config->get('tracking.id_fields');
+    if (empty($idFields)) {
+      $requirements['migrate_log']['value'] = t('No ID fields configured');
+      $requirements['migrate_log']['description'] = t('Consider configuring ID fields in Migrate Log settings for optimal entity matching.');
+      $requirements['migrate_log']['severity'] = REQUIREMENT_WARNING;
+    }
+  }
+
+  return $requirements;
+}

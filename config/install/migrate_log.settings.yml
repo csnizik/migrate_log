@@ -1,6 +1,6 @@
 logging:
-  main_channel: 'sheepdog'
-  edits_channel: 'sheepdog_edits'
+  main_channel: 'migrate_log'
+  edits_channel: 'migrate_log_edits'
   log_new_entities: true
   log_updated_entities: true
   log_unchanged_entities: true
